@@ -27,7 +27,7 @@ let isGameStarted = false;
 let isGamePlaying = false;
 let score = 0;
 let totalScore = 0;
-const scoreToPassLevel = 2;
+let scoreToPassLevel = 3;
 let lives = 3;
 let level = 1;
 const startBtn = document.querySelector("#start");
@@ -73,6 +73,8 @@ function startGame(){
     if(!isGameStarted){
         isGameStarted = true;
         startBtn.innerHTML = "Restart"
+        const audio = new Audio('./audio/start.ogg');
+        audio.play();
         gameManager();
     } else {
         document.location.reload();
@@ -81,7 +83,7 @@ function startGame(){
 
 async function gameManager(){
     updateDetails()
-    await drawMessage(level === 1? "🏏 Get ready!" : "☝️ Next level!", "#34eb74");
+    await drawMessage(level === 1? `🏏 Get ready! hit ${scoreToPassLevel} score` : `☝️ Next level! hit ${scoreToPassLevel} score`, "#34eb74");
     isGamePlaying = true;
     draw()
 }
@@ -97,6 +99,8 @@ function nextLevel(){
     isGamePlaying = false;
     const audio = new Audio('./audio/next.mp3');
     audio.play();
+
+    scoreToPassLevel++;
     totalScore += score;
     score = 0;
     ballSpeed +=1;
