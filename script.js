@@ -160,8 +160,8 @@ function draw() {
 function restartPosition(){
     x = canvas.width/2;
     y = canvas.height-30;
-    dx = 3;
-    dy = -3;
+    dx = 2;
+    dy = -2;
     paddleX = (canvas.width-paddleWidth)/2;
 }
 
