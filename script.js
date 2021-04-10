@@ -12,7 +12,7 @@ let x = canvas.width/2;
 let y = canvas.height-30;
 let dx = 2;
 let dy = -2;
-let ballSpeed = 2;
+let ballSpeed = 1;
 
 //Paddle
 const paddleHeight = 10;
@@ -31,8 +31,11 @@ const scoreToPassLevel = 2;
 let lives = 3;
 let level = 1;
 const startBtn = document.querySelector("#start");
+const levelDetail = document.querySelector("#level")
+const ballSpeedDetail = document.querySelector("#ballSpeed")
+const totalScoreDetail = document.querySelector("#totalScore")
 
-drawMessage("Press start to play 🏏");
+drawMessage("🏁 Press start to play");
 
 // ---------------- INPUTS
 
@@ -76,9 +79,16 @@ function startGame(){
 }
 
 async function gameManager(){
-    await drawMessage(`Level: ${level} - Total Score: ${totalScore} - Ball Speed: ${ballSpeed}`, "#34eb74");
+    updateDetails()
+    await drawMessage(level === 1? "🏏 Get ready!" : "☝️ Next level!", "#34eb74");
     isGamePlaying = true;
     draw()
+}
+
+function updateDetails(){
+    levelDetail.innerHTML = level;
+    ballSpeedDetail.innerHTML = ballSpeed;
+    totalScoreDetail.innerHTML = totalScore;
 }
 
 function nextLevel(){
