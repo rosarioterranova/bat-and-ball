@@ -34,6 +34,7 @@ const startBtn = document.querySelector("#start");
 const levelDetail = document.querySelector("#level")
 const ballSpeedDetail = document.querySelector("#ballSpeed")
 const totalScoreDetail = document.querySelector("#totalScore")
+const livesDetail = document.querySelector("#lives")
 
 drawMessage("🏁 Press start to play");
 
@@ -89,10 +90,13 @@ function updateDetails(){
     levelDetail.innerHTML = level;
     ballSpeedDetail.innerHTML = ballSpeed;
     totalScoreDetail.innerHTML = totalScore;
+    livesDetail.innerHTML = lives;
 }
 
 function nextLevel(){
     isGamePlaying = false;
+    const audio = new Audio('./audio/next.mp3');
+    audio.play();
     totalScore += score;
     score = 0;
     ballSpeed +=1;
@@ -102,17 +106,21 @@ function nextLevel(){
 
 async function lifeLoss(){
     isGamePlaying = false
+    const audio = new Audio('./audio/lifeLoss.wav');
+    audio.play();
     await drawMessage("You lost 1 life 😥", "#f7393f");
     lives--;
     if(!lives) {
-        drawMessage("GAME OVER", "#f7393f", null)
-        document.location.reload();
+        const audio = new Audio('./audio/game-over.wav');
+        audio.play();
+        await drawMessage("💀 GAME OVER", "#f7393f", null)
     }
     else {
         restartPosition();
         isGamePlaying = true
         draw()
     }
+    updateDetails();
 }
 
 function drawMessage(message="message", backgroundColor="#00FFFF"){
@@ -123,6 +131,11 @@ function drawMessage(message="message", backgroundColor="#00FFFF"){
     ctx.fillText(message, canvas.width/2, canvas.height/2);
     return new Promise(resolve => setTimeout(resolve, 3000))
 
+}
+
+function playRandomBounce(){
+    const audio = new Audio(`./audio/bounces/${Math.floor(Math.random() * 4) + 1}.mp3`);
+    audio.play();
 }
 
 // ---------------- DRAW FUNCTIONS
@@ -186,15 +199,18 @@ function draw() {
     //bounce right and left
     if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
         dx = -dx;
+        playRandomBounce();
     }
 
     //bounce up
     if(y + dy < ballRadius) {
         dy = -dy;
+        playRandomBounce();
     }
     else if(y + dy > (canvas.height-paddleOffset)-ballRadius) { //bounce down
         if(x > paddleX && x < paddleX + paddleWidth) { //bounce to paddle
             dy = -dy;
+            playRandomBounce();
             score++;
             if(score === scoreToPassLevel)
                 nextLevel()
