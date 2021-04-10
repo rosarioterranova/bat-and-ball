@@ -1,4 +1,4 @@
-// ---- DATA
+// ---------------- DATA
 
 //Canvas
 const canvas = document.getElementById("canvas");
@@ -12,7 +12,7 @@ let x = canvas.width/2;
 let y = canvas.height-30;
 let dx = 2;
 let dy = -2;
-const ballSpeed = 2;
+let ballSpeed = 2;
 
 //Paddle
 const paddleHeight = 10;
@@ -24,10 +24,17 @@ let leftPressed = false;
 
 //Game Data
 let isGameStarted = false;
+let isGamePlaying = false;
 let score = 0;
+let totalScore = 0;
+const scoreToPassLevel = 2;
 let lives = 3;
+let level = 1;
+const startBtn = document.querySelector("#start");
 
-// ---- INPUTS
+drawMessage("Press start to play 🏏");
+
+// ---------------- INPUTS
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -54,24 +61,66 @@ function mouseMoveHandler(e) {
     }
 }
 
-//Start Button
-document.querySelector("#start").addEventListener("click", ()=>{
+// ---------------- LOGIC
+
+startBtn.addEventListener("click", ()=> startGame())
+
+function startGame(){
     if(!isGameStarted){
-        draw();
         isGameStarted = true;
-        document.querySelector("#start").innerHTML = "Restart"
+        startBtn.innerHTML = "Restart"
+        gameManager();
     } else {
         document.location.reload();
     }
-})
+}
 
+async function gameManager(){
+    await drawMessage(`Level: ${level} - Total Score: ${totalScore} - Ball Speed: ${ballSpeed}`, "#34eb74");
+    isGamePlaying = true;
+    draw()
+}
 
-// ---- DRAW FUNCTIONS
+function nextLevel(){
+    isGamePlaying = false;
+    totalScore += score;
+    score = 0;
+    ballSpeed +=1;
+    level++;
+    gameManager();
+}
 
-function drawContext(){
+async function lifeLoss(){
+    isGamePlaying = false
+    await drawMessage("You lost 1 life 😥", "#f7393f");
+    lives--;
+    if(!lives) {
+        drawMessage("GAME OVER", "#f7393f", null)
+        document.location.reload();
+    }
+    else {
+        restartPosition();
+        isGamePlaying = true
+        draw()
+    }
+}
+
+function drawMessage(message="message", backgroundColor="#00FFFF"){
+    drawContext(backgroundColor);
+    ctx.font = "16px cursive";
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+    ctx.fillText(message, canvas.width/2, canvas.height/2);
+    return new Promise(resolve => setTimeout(resolve, 3000))
+
+}
+
+// ---------------- DRAW FUNCTIONS
+
+function drawContext(color="#00FFFF"){
     // Background
     ctx.strokeStyle="#FF0000";
-    ctx.fillStyle = "#00FFFF";
+    ctx.fillStyle = color;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     // Borders
@@ -86,7 +135,6 @@ function drawContext(){
     ctx.moveTo(0, canvas.height);
     ctx.lineTo(canvas.width, canvas.height);
     ctx.stroke();
-
 }
 
 function drawBall() {
@@ -108,7 +156,7 @@ function drawPaddle() {
 function drawScore() {
     ctx.font = "16px cursive";
     ctx.fillStyle = "#000000";
-    ctx.fillText("Score: "+ score, 8, 20);
+    ctx.fillText("Score: "+ score, 40, 20);
 }
 
 function drawLives() {
@@ -138,24 +186,19 @@ function draw() {
         if(x > paddleX && x < paddleX + paddleWidth) { //bounce to paddle
             dy = -dy;
             score++;
+            if(score === scoreToPassLevel)
+                nextLevel()
         }
         else { //bounce to empty
-            lives--;
-            if(!lives) {
-                alert("GAME OVER");
-                document.location.reload();
-            }
-            else {
-                restartPosition();
-            }
+            lifeLoss()
         }
     }
 
     movePaddle();
     moveBall();
-    requestAnimationFrame(draw); //https://stackoverflow.com/questions/38709923/why-is-requestanimationframe-better-than-setinterval-or-settimeout
+    if(isGamePlaying)
+        requestAnimationFrame(draw); //https://stackoverflow.com/questions/38709923/why-is-requestanimationframe-better-than-setinterval-or-settimeout
 }
-
 
 function restartPosition(){
     x = canvas.width/2;
