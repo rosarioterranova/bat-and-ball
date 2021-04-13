@@ -213,6 +213,11 @@ function draw() {
     }
     else if(y + dy > (canvas.height-paddleOffset)-ballRadius) { //bounce down
         if(x > paddleX && x < paddleX + paddleWidth) { //bounce to paddle
+            if(x > paddleX + paddleWidth/2){
+                dx = Math.abs(dx);
+            } else{
+                dx = Math.abs(dx) * -1;
+            }
             dy = -dy;
             playRandomBounce();
             score++;
